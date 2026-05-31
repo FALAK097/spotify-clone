@@ -1,19 +1,8 @@
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
-
-import { Song } from '@/types';
+import type { Song } from '@/types';
 
 const useLoadImage = (song: Song) => {
-  const supabaseClient = useSupabaseClient();
-
-  if (!song) {
-    return null;
-  }
-
-  const { data: imageData } = supabaseClient.storage
-    .from('images')
-    .getPublicUrl(song.image_path);
-
-  return imageData.publicUrl;
+  if (!song) return null;
+  return song.image_path ?? null;
 };
 
 export default useLoadImage;

@@ -1,8 +1,6 @@
 'use client';
 
-import uniqid from 'uniqid';
 import React, { useState } from 'react';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -18,7 +16,6 @@ const UploadModal = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const uploadModal = useUploadModal();
-  const supabaseClient = useSupabaseClient();
   const { user } = useUser();
   const router = useRouter();
 
@@ -50,56 +47,27 @@ const UploadModal = () => {
         return;
       }
 
-      const uniqueID = uniqid();
+      const formData = new FormData();
+      formData.append('song', songFile);
+      formData.append('image', imageFile);
+      formData.append('title', values.title);
+      formData.append('author', values.author);
 
-      // Upload song
-      const { data: songData, error: songError } = await supabaseClient.storage
-        .from('songs')
-        .upload(`song-${values.title}-${uniqueID}`, songFile, {
-          cacheControl: '3600',
-          upsert: false,
-        });
+      const res = await fetch('/api/songs/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-      if (songError) {
-        setIsLoading(false);
-        return toast.error('Failed song upload');
-      }
-
-      // Upload image
-      const { data: imageData, error: imageError } =
-        await supabaseClient.storage
-          .from('images')
-          .upload(`image-${values.title}-${uniqueID}`, imageFile, {
-            cacheControl: '3600',
-            upsert: false,
-          });
-
-      if (imageError) {
-        setIsLoading(false);
-        return toast.error('Failed image upload');
-      }
-
-      // Create record
-      const { error: supabaseError } = await supabaseClient
-        .from('songs')
-        .insert({
-          user_id: user.id,
-          title: values.title,
-          author: values.author,
-          image_path: imageData.path,
-          song_path: songData.path,
-        });
-
-      if (supabaseError) {
-        return toast.error(supabaseError.message);
+      if (!res.ok) {
+        const err = await res.json();
+        return toast.error(err.error ?? 'Upload failed');
       }
 
       router.refresh();
-      setIsLoading(false);
       toast.success('Song created!');
       reset();
       uploadModal.onClose();
-    } catch (error) {
+    } catch {
       toast.error('Something went wrong');
     } finally {
       setIsLoading(false);
