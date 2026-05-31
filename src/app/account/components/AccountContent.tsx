@@ -7,7 +7,7 @@ import { useUser } from '@/hooks/useUser';
 import Button from '@/components/Button';
 import useSubscribeModal from '@/hooks/useSubscribeModal';
 import { postData } from '@/libs/helpers';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 
 const AccountContent = () => {
   const router = useRouter();

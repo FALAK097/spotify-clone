@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import type { Song } from '@/types';
 
 const useSongById = (id?: string) => {

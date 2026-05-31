@@ -1,18 +1,9 @@
 'use client';
 
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from 'sonner';
 
 const ToasterProvider = () => {
-  return (
-    <Toaster
-      toastOptions={{
-        style: {
-          background: '#333',
-          color: '#fff',
-        },
-      }}
-    />
-  );
+  return <Toaster position="bottom-center" richColors />;
 };
 
 export default ToasterProvider;

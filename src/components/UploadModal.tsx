@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
 import useUploadModal from '@/hooks/useUploadModal';
