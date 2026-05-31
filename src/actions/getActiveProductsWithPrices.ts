@@ -1,26 +1,39 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-
-import { ProductWithPrice } from '@/types';
+import prisma from '@/lib/prisma';
+import type { ProductWithPrice } from '@/types';
 
 const getActiveProductsWithPrices = async (): Promise<ProductWithPrice[]> => {
-  const supabase = createServerComponentClient({
-    cookies: cookies,
+  const products = await prisma.product.findMany({
+    where: { active: true },
+    include: {
+      prices: {
+        where: { active: true },
+        orderBy: { unitAmount: 'asc' },
+      },
+    },
   });
 
-  const { data, error } = await supabase
-    .from('products')
-    .select('*, prices(*)')
-    .eq('active', true)
-    .eq('prices.active', true)
-    .order('metadata->index')
-    .order('unit_amount', { foreignTable: 'prices' });
-
-  if (error) {
-    console.log(error.message);
-  }
-
-  return (data as any) || [];
+  return products.map(p => ({
+    id: p.id,
+    active: p.active ?? true,
+    name: p.name ?? undefined,
+    description: p.description ?? undefined,
+    image: p.image ?? undefined,
+    metadata: p.metadata ?? undefined,
+    prices: p.prices.map(price => ({
+      id: price.id,
+      product_id: price.productId ?? '',
+      active: price.active ?? true,
+      description: price.description ?? undefined,
+      unit_amount: price.unitAmount ?? undefined,
+      currency: price.currency ?? undefined,
+      type: price.type as any,
+      interval: price.interval as any,
+      interval_count: price.intervalCount ?? undefined,
+      trial_period_days: price.trialPeriodDays,
+      metadata: price.metadata ?? undefined,
+      products: undefined,
+    })),
+  }));
 };
 
 export default getActiveProductsWithPrices;

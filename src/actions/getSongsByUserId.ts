@@ -1,32 +1,25 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import prisma from '@/lib/prisma';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import type { SongRow } from './getSongs';
 
-import { Song } from '@/types';
+const getSongsByUserId = async (): Promise<SongRow[]> => {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) return [];
 
-const getSongsByUserId = async (): Promise<Song[]> => {
-  const supabase = createServerComponentClient({
-    cookies: cookies,
+  const songs = await prisma.song.findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: 'desc' },
   });
 
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
-
-  if (sessionError) {
-    console.log(sessionError.message);
-    return [];
-  }
-
-  const { data, error } = await supabase
-    .from('songs')
-    .select('*')
-    .eq('user_id', sessionData.session?.user.id)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.log(error.message);
-  }
-
-  return (data as any) || [];
+  return songs.map(s => ({
+    id: s.id,
+    user_id: s.userId ?? '',
+    author: s.author ?? '',
+    title: s.title ?? '',
+    song_path: s.songPath ?? '',
+    image_path: s.imagePath ?? '',
+  }));
 };
 
 export default getSongsByUserId;

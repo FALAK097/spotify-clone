@@ -117,7 +117,7 @@ model UserProfile {
 }
 
 model Song {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   title     String?
   author    String?
   songPath  String?
@@ -131,7 +131,7 @@ model Song {
 
 model LikedSong {
   userId    String
-  songId    Int
+  songId    String
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])

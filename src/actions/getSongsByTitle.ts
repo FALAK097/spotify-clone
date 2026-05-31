@@ -1,31 +1,23 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies, headers } from 'next/headers';
-
-import { Song } from '@/types';
-
+import prisma from '@/lib/prisma';
+import type { SongRow } from './getSongs';
 import getSongs from './getSongs';
 
-const getSongsByTitle = async (title: string): Promise<Song[]> => {
-  const supabase = createServerComponentClient({
-    cookies: cookies,
+const getSongsByTitle = async (title: string): Promise<SongRow[]> => {
+  if (!title) return getSongs();
+
+  const songs = await prisma.song.findMany({
+    where: { title: { contains: title, mode: 'insensitive' } },
+    orderBy: { createdAt: 'desc' },
   });
 
-  if (!title) {
-    const allSongs = await getSongs();
-    return allSongs;
-  }
-
-  const { data, error } = await supabase
-    .from('songs')
-    .select('*')
-    .ilike('title', `%${title}%`)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.log(error.message);
-  }
-
-  return (data as any) || [];
+  return songs.map(s => ({
+    id: s.id,
+    user_id: s.userId ?? '',
+    author: s.author ?? '',
+    title: s.title ?? '',
+    song_path: s.songPath ?? '',
+    image_path: s.imagePath ?? '',
+  }));
 };
 
 export default getSongsByTitle;
