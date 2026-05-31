@@ -18,7 +18,7 @@ const getActiveProductsWithPrices = async (): Promise<ProductWithPrice[]> => {
     name: p.name ?? undefined,
     description: p.description ?? undefined,
     image: p.image ?? undefined,
-    metadata: p.metadata ?? undefined,
+    metadata: p.metadata as Record<string, any> | undefined,
     prices: p.prices.map(price => ({
       id: price.id,
       product_id: price.productId ?? '',
@@ -26,11 +26,11 @@ const getActiveProductsWithPrices = async (): Promise<ProductWithPrice[]> => {
       description: price.description ?? undefined,
       unit_amount: price.unitAmount ?? undefined,
       currency: price.currency ?? undefined,
-      type: price.type as any,
-      interval: price.interval as any,
+      type: price.type as string | undefined,
+      interval: price.interval as string | undefined,
       interval_count: price.intervalCount ?? undefined,
       trial_period_days: price.trialPeriodDays,
-      metadata: price.metadata ?? undefined,
+      metadata: price.metadata as Record<string, any> | undefined,
       products: undefined,
     })),
   }));

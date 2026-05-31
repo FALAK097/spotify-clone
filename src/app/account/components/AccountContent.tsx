@@ -1,36 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { authClient } from '@/lib/auth-client';
 import { useUser } from '@/hooks/useUser';
 import Button from '@/components/Button';
 import useSubscribeModal from '@/hooks/useSubscribeModal';
-import { postData } from '@/libs/helpers';
 import { toast } from 'sonner';
 
 const AccountContent = () => {
   const router = useRouter();
   const subscribeModal = useSubscribeModal();
   const { isLoading, subscription, user } = useUser();
-
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace('/');
-    }
-  }, [isLoading, user, router]);
+  if (!isLoading && !user) {
+    router.replace('/');
+  }
 
   const redirectToCustomerPortal = async () => {
     setLoading(true);
     try {
-      const { url, error } = await postData({
-        url: '/api/create-portal-link',
+      const { data } = await authClient.subscription.billingPortal({
+        returnUrl: `${window.location.origin}/account`,
       });
-      window.location.assign(url);
+      if (data?.url) window.location.assign(data.url);
     } catch (error) {
-      if (error) toast.error((error as Error).message);
+      toast.error((error as Error).message);
     }
     setLoading(false);
   };

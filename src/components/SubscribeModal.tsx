@@ -3,10 +3,9 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
+import { authClient } from '@/lib/auth-client';
 import useSubscribeModal from '@/hooks/useSubscribeModal';
 import { useUser } from '@/hooks/useUser';
-import { postData } from '@/libs/helpers';
-import { getStripe } from '@/libs/stripeClient';
 import { Price, ProductWithPrice } from '@/types';
 
 import Modal from './Modal';
@@ -51,15 +50,14 @@ const SubscribeModal: React.FC<SubscribeModalProps> = ({ products }) => {
     }
 
     try {
-      const { sessionId } = await postData({
-        url: '/api/create-checkout-session',
-        data: { price },
+      await authClient.subscription.upgrade({
+        plan: price.id,
+        successUrl: `${window.location.origin}/account`,
+        cancelUrl: `${window.location.origin}/`,
+        disableRedirect: false,
       });
-
-      const stripe = await getStripe();
-      stripe?.redirectToCheckout({ sessionId });
     } catch (error) {
-      return toast.error((error as Error)?.message);
+      toast.error((error as Error)?.message);
     } finally {
       setPriceIdLoading(undefined);
     }
