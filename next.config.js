@@ -20,6 +20,11 @@ module.exports = {
         'pg-native': 'commonjs pg-native',
       });
     }
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@better-auth/kysely-adapter': false,
+    };
     return config;
   },
 };
