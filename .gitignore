@@ -12,3 +12,9 @@ next-env.d.ts
 
 # Prisma
 /src/generated/prisma
+.vercel
+.env*
+
+# Cloudflare & OpenNext
+.open-next/
+.wrangler/

@@ -6,11 +6,17 @@ module.exports = {
       { protocol: 'https', hostname: '*.r2.cloudflarestorage.com' },
     ],
   },
+  experimental: {
+    serverComponentsExternalPackages: [
+      '@prisma/client',
+      '.prisma/client',
+      'pg',
+      'pg-native',
+    ],
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals.push({
-        'kysely': 'commonjs kysely',
-        '@better-auth/kysely-adapter': 'commonjs @better-auth/kysely-adapter',
         'pg-native': 'commonjs pg-native',
       });
     }

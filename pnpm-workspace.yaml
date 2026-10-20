@@ -1,7 +1,9 @@
 allowBuilds:
   '@prisma/engines': true
+  esbuild: true
   msw: true
   prisma: true
+  workerd: true
 minimumReleaseAgeExclude:
   - '@better-auth/core@1.6.13'
   - '@better-auth/drizzle-adapter@1.6.13'
