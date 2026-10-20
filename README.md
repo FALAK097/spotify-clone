@@ -1,68 +1,78 @@
 # Spotify Clone
 
-[SPOTIFY Demo](https://spotify-clone-falak097.vercel.app/)
+A full-featured Spotify clone built with Next.js, featuring song upload/playback, authentication, and Stripe subscriptions.
 
-![Spotify](https://github.com/FALAK097/spotify_clone/blob/main/screenshot.PNG)
+## Tech Stack
 
-Welcome to my personal project, a Spotify Clone! This project replicates some of the key features and functionalities of Spotify and is intended to showcase my development skills.
+- **Framework:** Next.js 13 (App Router)
+- **Language:** TypeScript
+- **Database:** PostgreSQL + Prisma
+- **Auth:** Better Auth (email/password + Google OAuth)
+- **Payments:** Stripe (via Better Auth Stripe plugin)
+- **Storage:** Cloudflare R2 (production) / local filesystem (development)
+- **UI:** Tailwind CSS + shadcn/ui
+- **Package Manager:** pnpm
 
-## Introduction
+## Features
 
-This project is a Spotify Clone that I've developed to showcase my skills in building web applications with modern technologies. It closely resembles the design and features of the Spotify music streaming platform.
+- Song upload and playback
+- Like/unlike songs
+- Search songs by title
+- User authentication (email/password + Google OAuth)
+- Stripe subscription integration
+- Account management with customer portal
+- Rate-limited uploads (10/hour per user)
 
-## Key Features
+## Prerequisites
 
-- Song upload
-- Stripe integration for premium subscriptions
-- User authentication with Supabase and GitHub integration
-- Audio playback functionality
-- Favorites and playlists system
-- Search songs
-- View Account information and cancel subscriptions
-
-## Technologies Used
-
-- [Next.js](https://nextjs.org/)
-- [React](https://reactjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Supabase](https://supabase.com/)
-- [PostgreSQL](https://www.postgresql.org/)
-- [Stripe](https://stripe.com/)
-
-### Prerequisites
-
-Before you begin, make sure you have the following installed on your system:
-
-- Node.js and npm (Node Package Manager)
-- Git
+- Node.js 20+
+- pnpm
 - PostgreSQL
-- Stripe account (for integrating Stripe payments)
+- Cloudflare R2 account (for production file storage)
+- Stripe account
+- Google OAuth credentials
 
-## Installation
+## Getting Started
 
-- Clone the repository:
-  `git clone https://github.com/FALAK097/spotify_clone.git`
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/FALAK097/spotify_clone.git
+   cd spotify_clone
+   ```
 
-- Navigate to the project directory:
-  `cd spotify_clone`
+2. Install dependencies:
+   ```bash
+   pnpm install
+   ```
 
-- Install dependencies:
-  `npm install`
+3. Copy the environment template:
+   ```bash
+   cp .env.example .env.local
+   ```
 
-- Create an .env.local file for Supabase and Stripe credentials.
-- Supabase Credentials  
-  NEXT_PUBLIC_SUPABASE_URL=your-supabase-url.com  
-  NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anonymous-key  
-  SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-- Stripe Credentials  
-  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key  
-  STRIPE_SECRET_KEY=your-stripe-secret-key  
-  STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
+4. Fill in `.env.local` with your credentials:
+   - Google OAuth client ID and secret
+   - PostgreSQL connection string
+   - Stripe keys
+   - Cloudflare R2 credentials (optional for dev)
 
-  You can get these keys from your supabase dashboard or stripe dashboard respectively after creating a new application in their
-  respective platforms.
+5. Set up the database:
+   ```bash
+   pnpm prisma generate
+   pnpm prisma migrate dev
+   ```
 
-- Start the development server:
-  `npm run dev`
+6. Start the dev server:
+   ```bash
+   pnpm dev
+   ```
 
-- Open your browser and visit `http://localhost:3000` to see the Spotify Clone Project up & running.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
+
+## Environment Variables
+
+See `.env.example` for all required variables.
+
+## License
+
+MIT

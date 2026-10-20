@@ -1,0 +1,20 @@
+node_modules/
+.next/
+*.local
+.env
+.env.local
+.env.production
+.env*.local
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Prisma
+/src/generated/prisma
+.vercel
+.env*
+
+# Cloudflare & OpenNext
+.open-next/
+.wrangler/

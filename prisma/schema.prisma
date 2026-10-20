@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PricingPlanInterval {
+  day
+  week
+  month
+  year
+}
+
+enum PricingType {
+  one_time
+  recurring
+}
+
+// ── Better Auth models ──
+
+model User {
+  id              String    @id
+  email           String    @unique
+  emailVerified   Boolean   @default(false)
+  name            String?
+  image           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Stripe plugin fields
+  stripeCustomerId String?
+
+  sessions       Session[]
+  accounts       Account[]
+  likedSongs     LikedSong[]
+  songs          Song[]
+  userProfile UserProfile?
+}
+
+model Session {
+  id           String   @id
+  expiresAt    DateTime
+  token        String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  ipAddress    String?
+  userAgent    String?
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model Account {
+  id              String  @id
+  accountId       String
+  providerId      String
+  userId          String
+  accessToken     String?
+  refreshToken    String?
+  idToken         String?
+  accessTokenExpiresAt DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope           String?
+  password        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ── Stripe plugin model (for Better Auth Stripe plugin) ──
+
+model Subscription {
+  id                  String   @id
+  plan                String
+  referenceId         String
+  stripeCustomerId    String?
+  stripeSubscriptionId String?
+  status              String
+  periodStart         DateTime?
+  periodEnd           DateTime?
+  cancelAtPeriodEnd   Boolean?
+  cancelAt            DateTime?
+  canceledAt          DateTime?
+  endedAt             DateTime?
+  seats               Int?
+  trialStart          DateTime?
+  trialEnd            DateTime?
+  billingInterval     String?
+  stripeScheduleId    String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+}
+
+// ── App-specific models ──
+
+model UserProfile {
+  id             String @id
+  fullName       String?
+  avatarUrl      String?
+  billingAddress Json?
+  paymentMethod  Json?
+
+  user User @relation(fields: [id], references: [id])
+}
+
+model Song {
+  id        String   @id @default(uuid())
+  title     String?
+  author    String?
+  songPath  String?
+  imagePath String?
+  createdAt DateTime @default(now())
+  userId    String?
+
+  user       User?       @relation(fields: [userId], references: [id])
+  likedSongs LikedSong[]
+}
+
+model LikedSong {
+  userId    String
+  songId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  song Song @relation(fields: [songId], references: [id])
+
+  @@id([userId, songId])
+}
+
+model Product {
+  id          String   @id
+  active      Boolean?
+  name        String?
+  description String?
+  image       String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  prices Price[]
+}
+
+model Price {
+  id              String               @id
+  productId       String?
+  active          Boolean?
+  description     String?
+  unitAmount      Int?
+  currency        String?
+  type            PricingType?
+  interval        PricingPlanInterval?
+  intervalCount   Int?
+  trialPeriodDays Int?
+  metadata        Json?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  product Product? @relation(fields: [productId], references: [id])
+}
