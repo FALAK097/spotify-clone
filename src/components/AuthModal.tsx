@@ -16,6 +16,8 @@ const AuthModal = () => {
   const router = useRouter();
   const { onClose, isOpen } = useAuthModal();
   const { data: session, isPending } = useSession();
+  const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,56 +30,153 @@ const AuthModal = () => {
   }, [session, isPending, router, onClose]);
 
   const onChange = (open: boolean) => {
-    if (!open) onClose();
+    if (!open) {
+      onClose();
+      // Reset form
+      setName('');
+      setEmail('');
+      setPassword('');
+      setMode('signIn');
+    }
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (mode === 'signUp' && !name) {
+      toast.error('Please enter your name');
+      return;
+    }
+
     setLoading(true);
     try {
-      await authClient.signIn.email({ email, password });
-      toast.success('Signed in!');
+      if (mode === 'signUp') {
+        const res = await authClient.signUp.email({
+          email,
+          password,
+          name,
+        });
+
+        if (res?.error) {
+          toast.error(res.error.message || 'Failed to create account');
+          return;
+        }
+
+        toast.success('Account created successfully! Welcome to Spotify.');
+      } else {
+        const res = await authClient.signIn.email({
+          email,
+          password,
+        });
+
+        if (res?.error) {
+          toast.error(res.error.message || 'Invalid email or password');
+          return;
+        }
+
+        toast.success('Signed in successfully!');
+      }
+
       router.refresh();
       onClose();
     } catch (err: any) {
-      toast.error(err?.message ?? 'Something went wrong');
+      toast.error(err?.message ?? 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
   };
 
+  const toggleMode = () => {
+    setMode((prev) => (prev === 'signIn' ? 'signUp' : 'signIn'));
+  };
+
   return (
     <Modal
-      title="Welcome back"
-      description="Login to your account."
+      title={mode === 'signIn' ? 'Welcome back' : 'Create an account'}
+      description={
+        mode === 'signIn'
+          ? 'Log in to continue listening.'
+          : 'Sign up to start listening to your favorite tracks.'
+      }
       isOpen={isOpen}
       onChange={onChange}
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-y-4">
-        <Input
-          id="email"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <Input
-          id="password"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        {mode === 'signUp' && (
+          <div>
+            <label className="text-xs text-neutral-400 font-semibold mb-1 block">
+              What should we call you?
+            </label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="Your name"
+              value={name}
+              required
+              disabled={loading}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+        )}
+
+        <div>
+          <label className="text-xs text-neutral-400 font-semibold mb-1 block">
+            Email address
+          </label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="name@domain.com"
+            value={email}
+            required
+            disabled={loading}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="text-xs text-neutral-400 font-semibold mb-1 block">
+            Password
+          </label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            required
+            disabled={loading}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+
         <Button
-          type="button"
-          className="bg-neutral-700 text-white px-6 py-2"
-          onClick={() => authClient.signIn.social({ provider: 'google' })}
+          disabled={loading}
+          type="submit"
+          className="bg-green-500 text-black py-3 mt-2 hover:scale-[1.02] transition font-bold"
         >
-          Continue with Google
+          {loading
+            ? 'Please wait...'
+            : mode === 'signIn'
+            ? 'Sign In'
+            : 'Create Account'}
         </Button>
-        <Button disabled={loading} type="submit" className="bg-white px-6 py-2">
-          {loading ? 'Loading...' : 'Sign In'}
-        </Button>
+
+        <div className="flex items-center justify-center pt-2">
+          <button
+            type="button"
+            onClick={toggleMode}
+            disabled={loading}
+            className="text-xs text-neutral-400 hover:text-white transition underline cursor-pointer"
+          >
+            {mode === 'signIn'
+              ? "Don't have an account? Sign up"
+              : 'Already have an account? Sign in'}
+          </button>
+        </div>
       </form>
     </Modal>
   );
