@@ -37,8 +37,8 @@ jobs:
       - name: Build with OpenNext
         run: pnpm run build:cf
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://neondb_owner:npg_J65qUgzWMtuk@ep-broad-sky-b4d44xxi-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require' }}
-          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET || '901c7ec67ba9d35cdf486c85b5215e660a3c30cc5e499fd996b7299190bfffb3' }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy' }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET || 'dummysecret_dummysecret_dummysecret_012345' }}
           BETTER_AUTH_URL: https://spotify.falakgala.dev
 
       - name: Deploy to Cloudflare (Production)
